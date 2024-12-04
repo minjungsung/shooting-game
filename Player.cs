@@ -9,6 +9,9 @@ public class Player : MonoBehaviour
     public bool isTouchLeft;
     public bool isTouchRight;
 
+
+    public int life;
+    public int score;
     public float speed;
     public float power;
     public float maxShotDelay;
@@ -16,6 +19,9 @@ public class Player : MonoBehaviour
 
     public GameObject bulletObjA;
     public GameObject bulletObjB;
+
+    public GameManager gameManager;
+    public bool isHit;
     Animator anim;
 
     void Awake()
@@ -112,6 +118,25 @@ public class Player : MonoBehaviour
                     isTouchRight = true;
                     break;
             }
+        }
+
+        if (collision.gameObject.tag == "Enemy" || collision.gameObject.tag == "EnemyBullet")
+        {
+            if (isHit) return;
+            
+            isHit = true;
+            life--;
+            gameManager.UpdateLifeIcon(life);
+            if (life <= 0)
+            {
+                gameManager.GameOver();
+            }
+            else
+            {
+                gameManager.RespawnPlayer();
+            }
+            gameObject.SetActive(false);
+            Destroy(collision.gameObject);
         }
     }
 
