@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    public GameObject[] enemyObjects;
+    public string[] enemyObjects;
     public Transform[] spawnPoints;
 
     public float maxSpawnDelay;
@@ -17,6 +17,19 @@ public class GameManager : MonoBehaviour
     public Image[] lifeImages;
     public Image[] boomImages;
     public GameObject gameOverSet;
+    public ObjectManager objectManager;
+
+
+    void Awake()
+    {
+        enemyObjects = new string[] { "EnemyL", "EnemyM", "EnemyS" };
+        
+        if (player != null)
+        {
+            Player playerLogic = player.GetComponent<Player>();
+            playerLogic.objectManager = objectManager;
+        }
+    }
 
     void Update()
     {
@@ -40,11 +53,13 @@ public class GameManager : MonoBehaviour
         int ranEnemy = Random.Range(0, enemyObjects.Length);
         int ranPoint = Random.Range(0, spawnPoints.Length);
 
-        GameObject enemy = Instantiate(enemyObjects[ranEnemy], spawnPoints[ranPoint].position, spawnPoints[ranPoint].rotation);
+        GameObject enemy = objectManager.MakeObj(enemyObjects[ranEnemy]);
+        enemy.transform.position = spawnPoints[ranPoint].position;
+
         Rigidbody2D rigid = enemy.GetComponent<Rigidbody2D>();
         Enemy enemyLogic = enemy.GetComponent<Enemy>();
         enemyLogic.player = player;
-
+        enemyLogic.objectManager = objectManager;
         if (ranPoint == 5 || ranPoint == 6)
         {
             enemy.transform.Rotate(Vector3.back * 90);
@@ -70,7 +85,7 @@ public class GameManager : MonoBehaviour
     {
         player.transform.position = Vector3.down * 3.5f;
         player.SetActive(true);
-        
+
         Player playerLogic = player.GetComponent<Player>();
         playerLogic.isHit = false;
     }
