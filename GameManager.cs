@@ -52,7 +52,6 @@ public class GameManager : MonoBehaviour
             if (line == null) break;
 
             Spawn spawn = new Spawn();
-            Debug.Log("line : " + line);
 
             spawn.delay = float.Parse(line.Split(',')[0]);
             spawn.type = line.Split(',')[1];
