@@ -27,7 +27,7 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         spawnList = new List<Spawn>();
-        enemyObjects = new string[] { "EnemyS", "EnemyM", "EnemyL" };
+        enemyObjects = new string[] { "EnemyS", "EnemyM", "EnemyL", "Boss" };
         ReadSpawnFile();
 
         if (player != null)
@@ -91,6 +91,9 @@ public class GameManager : MonoBehaviour
                 break;
             case "L":
                 enemyIndex = 2;
+                break;
+            case "Boss":
+                enemyIndex = 3;
                 break;
         }
 

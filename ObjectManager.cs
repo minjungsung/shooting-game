@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ObjectManager : MonoBehaviour
 {
-
+    public GameObject bossPrefab;
     public GameObject enemyLPrefab;
     public GameObject enemyMPrefab;
     public GameObject enemySPrefab;
@@ -18,7 +18,10 @@ public class ObjectManager : MonoBehaviour
     public GameObject bulletEnemyAPrefab;
     public GameObject bulletEnemyBPrefab;
     public GameObject bulletFollowerPrefab;
+    public GameObject bulletBossAPrefab;
+    public GameObject bulletBossBPrefab;
 
+    GameObject[] boss;
     GameObject[] enemyL;
     GameObject[] enemyM;
     GameObject[] enemyS;
@@ -32,10 +35,13 @@ public class ObjectManager : MonoBehaviour
     GameObject[] bulletEnemyA;
     GameObject[] bulletEnemyB;
     GameObject[] bulletFollower;
+    GameObject[] bulletBossA;
+    GameObject[] bulletBossB;
     GameObject[] targetPool;
 
     void Awake()
     {
+        boss = new GameObject[1];
         enemyL = new GameObject[10];
         enemyM = new GameObject[10];
         enemyS = new GameObject[20];
@@ -49,11 +55,18 @@ public class ObjectManager : MonoBehaviour
         bulletEnemyA = new GameObject[100];
         bulletEnemyB = new GameObject[100];
         bulletFollower = new GameObject[100];
+        bulletBossA = new GameObject[50];
+        bulletBossB = new GameObject[1000];
         Generate();
     }
 
     void Generate()
     {
+        for (int i = 0; i < boss.Length; i++)
+        {
+            boss[i] = Instantiate(bossPrefab);
+            boss[i].SetActive(false);
+        }
         for (int i = 0; i < enemyL.Length; i++)
         {
             enemyL[i] = Instantiate(enemyLPrefab);
@@ -109,6 +122,16 @@ public class ObjectManager : MonoBehaviour
             bulletFollower[i] = Instantiate(bulletFollowerPrefab);
             bulletFollower[i].SetActive(false);
         }
+        for (int i = 0; i < bulletBossA.Length; i++)
+        {
+            bulletBossA[i] = Instantiate(bulletBossAPrefab);
+            bulletBossA[i].SetActive(false);
+        }
+        for (int i = 0; i < bulletBossB.Length; i++)
+        {
+            bulletBossB[i] = Instantiate(bulletBossBPrefab);
+            bulletBossB[i].SetActive(false);
+        }
     }
 
     public GameObject MakeObj(string prefab)
@@ -116,6 +139,9 @@ public class ObjectManager : MonoBehaviour
 
         switch (prefab)
         {
+            case "Boss":
+                targetPool = boss;
+                break;
             case "EnemyL":
                 targetPool = enemyL;
                 break;
@@ -148,6 +174,12 @@ public class ObjectManager : MonoBehaviour
                 break;
             case "BulletFollower":
                 targetPool = bulletFollower;
+                break;
+            case "BulletBossA":
+                targetPool = bulletBossA;
+                break;
+            case "BulletBossB":
+                targetPool = bulletBossB;
                 break;
             default:
                 break;
@@ -168,6 +200,9 @@ public class ObjectManager : MonoBehaviour
     {
         switch (prefab)
         {
+            case "Boss":
+                targetPool = boss;
+                break;
             case "EnemyL":
                 targetPool = enemyL;
                 break;
@@ -200,6 +235,12 @@ public class ObjectManager : MonoBehaviour
                 break;
             case "BulletFollower":
                 targetPool = bulletFollower;
+                break;
+            case "BulletBossA":
+                targetPool = bulletBossA;
+                break;
+            case "BulletBossB":
+                targetPool = bulletBossB;
                 break;
             default:
                 break;
