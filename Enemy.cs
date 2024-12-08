@@ -58,8 +58,6 @@ public class Enemy : MonoBehaviour
         }
     }
 
-
-
     public void Stop()
     {
         if (!gameObject.activeSelf) return;
@@ -72,6 +70,7 @@ public class Enemy : MonoBehaviour
 
     void Think()
     {
+        if (health <= 0) return;
         patternIndex = patternIndex == 3 ? 0 : patternIndex + 1;
         curPatternCount = 0;
 
@@ -129,6 +128,7 @@ public class Enemy : MonoBehaviour
     {
         for (int i = 0; i < 5; i++)
         {
+            if (health <= 0) return;
             GameObject bullet = objectManager.MakeObj("BulletEnemyB");
             bullet.transform.position = transform.position;
 
@@ -153,7 +153,6 @@ public class Enemy : MonoBehaviour
 
     void FireArc()
     {
-
         GameObject bullet = objectManager.MakeObj("BulletEnemyA");
         bullet.transform.position = transform.position;
         bullet.transform.rotation = Quaternion.identity;
@@ -177,17 +176,23 @@ public class Enemy : MonoBehaviour
     void FireAround()
     {
         int roundNumA = 50;
-        for (int i = 0; i < roundNumA; i++)
+        int roundNumB = 40;
+        int roundNum = curPatternCount % 2 == 0 ? roundNumA : roundNumB;
+        for (int i = 0; i < roundNum; i++)
         {
-            GameObject bullet = objectManager.MakeObj("BulletEnemyB");
+            if (health <= 0) return;
+            GameObject bullet = objectManager.MakeObj("BulletBossB");
             bullet.transform.position = transform.position;
             bullet.transform.rotation = Quaternion.identity;
 
             Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
-            Vector2 dirVec = new Vector2(Mathf.Cos(Mathf.PI * 2 * i / roundNumA), Mathf.Sin(Mathf.PI * 2 * i / roundNumA));
-            rb.AddForce(dirVec.normalized * 3, ForceMode2D.Impulse);
+            Vector2 dirVec = new Vector2(
+                Mathf.Cos(Mathf.PI * 2 * i / roundNum),
+                Mathf.Sin(Mathf.PI * 2 * i / roundNum));
 
-            Vector3 rotVec = Vector3.forward * Mathf.PI * 2 * i / roundNumA + Vector3.forward * 90;
+            rb.AddForce(dirVec.normalized * 2, ForceMode2D.Impulse);
+
+            Vector3 rotVec = Vector3.forward * 360 * i / roundNum + Vector3.forward * 90;
             bullet.transform.Rotate(rotVec);
         }
 
@@ -221,8 +226,6 @@ public class Enemy : MonoBehaviour
         }
         if (health <= 0)
         {
-            objectManager.DeleteAllObj("Boss");
-
             if (player != null)
             {
                 Player playerLogic = player.GetComponent<Player>();
@@ -303,7 +306,6 @@ public class Enemy : MonoBehaviour
     {
         curShotDelay += Time.deltaTime;
     }
-
 
     void ReturnSprite()
     {
