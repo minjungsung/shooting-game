@@ -30,12 +30,49 @@ public class Player : MonoBehaviour
     public bool isHit;
     public bool isBoomTime;
     public GameObject[] followers;
+    public bool isRespawnTime;
+    public bool[] joyControl;
+    public bool isControl;
+    public bool isButtonA;
+    public bool isButtonB;
 
     Animator anim;
+    SpriteRenderer spriteRenderer;
 
     void Awake()
     {
         anim = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
+    void OnEnable()
+    {
+        Unbeatable();
+        Invoke("Unbeatable", 3f);
+    }
+
+    void Unbeatable()
+    {
+        isRespawnTime = !isRespawnTime;
+
+        if (isRespawnTime)
+        {
+            isRespawnTime = true;
+            spriteRenderer.color = new Color(1, 1, 1, 0.5f);
+            for (int index = 0; index < followers.Length; index++)
+            {
+                followers[index].GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.5f);
+            }
+        }
+        else
+        {
+            isRespawnTime = false;
+            spriteRenderer.color = new Color(1, 1, 1, 1f);
+            for (int index = 0; index < followers.Length; index++)
+            {
+                followers[index].GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
+            }
+        }
     }
 
     void Update()
@@ -46,14 +83,79 @@ public class Player : MonoBehaviour
         Reload();
     }
 
+    public void JoyPanel(int type)
+    {
+        for (int index = 0; index < joyControl.Length; index++)
+        {
+            joyControl[index] = index == type;
+        }
+    }
+
+    public void JoyDown()
+    {
+        isControl = true;
+    }
+
+    public void JoyUp()
+    {
+        isControl = false;
+    }
+
     void Move()
     {
         float h = Input.GetAxisRaw("Horizontal");
-        if ((isTouchRight && h == 1) || (isTouchLeft && h == -1))
+        float v = Input.GetAxisRaw("Vertical");
+
+        if (joyControl[0])
+        {
+            h = -1;
+            v = 1;
+        }
+        else if (joyControl[1])
+        {
+            h = 1;
+            v = 1;
+        }
+        else if (joyControl[2])
+        {
+            h = 0;
+            v = 1;
+        }
+        else if (joyControl[3])
+        {
+            h = -1;
+            v = 0;
+        }
+        else if (joyControl[4])
+        {
+            h = 0;
+            v = 0;
+        }
+        else if (joyControl[5])
+        {
+            h = 1;
+            v = 0;
+        }
+        else if (joyControl[6])
+        {
+            h = -1;
+            v = -1;
+        }
+        else if (joyControl[7])
+        {
+            h = 0;
+            v = -1;
+        }
+        else if (joyControl[8])
+        {
+            h = 1;
+            v = -1;
+        }
+
+        if ((isTouchRight && h == 1) || (isTouchLeft && h == -1) || !isControl)
             h = 0;
 
-        float v = Input.GetAxisRaw("Vertical");
-        if ((isTouchTop && v == 1) || (isTouchBottom && v == -1))
+        if ((isTouchTop && v == 1) || (isTouchBottom && v == -1) || !isControl)
             v = 0;
 
         Vector3 curPos = transform.position;
@@ -67,9 +169,30 @@ public class Player : MonoBehaviour
         }
     }
 
+    public void ButtonADown()
+    {
+        isButtonA = true;
+    }
+
+    public void ButtonAUp()
+    {
+        isButtonA = false;
+    }
+
+    public void ButtonBDown()
+    {
+        isButtonB = true;
+    }
+
     void Fire()
     {
-        if (!Input.GetButtonDown("Fire1")) return;
+        // if (!Input.GetButtonDown("Fire1")) return;
+
+        if (!isButtonA)
+        {
+            return;
+        }
+
         if (curShotDelay < maxShotDelay) return;
 
         switch (power)
@@ -122,7 +245,8 @@ public class Player : MonoBehaviour
 
     void Boom()
     {
-        if (!Input.GetButtonDown("Fire2")) return;
+        // if (!Input.GetButtonDown("Fire2")) return;
+        if (!isButtonB) return;
         if (boom <= 0) return;
         if (isBoomTime) return;
 
@@ -200,11 +324,15 @@ public class Player : MonoBehaviour
         }
         else if (collision.gameObject.tag == "Enemy" || collision.gameObject.tag == "EnemyBullet")
         {
+
+            if (isRespawnTime) return;
             if (isHit) return;
 
             isHit = true;
             life--;
             gameManager.UpdateLifeIcon(life);
+            gameManager.CallExplosion(transform.position, "P");
+
             if (life <= 0)
             {
                 gameManager.GameOver();

@@ -7,6 +7,9 @@ using System.IO;
 
 public class GameManager : MonoBehaviour
 {
+    public int stage;
+    public Animator stageAnimator;
+    public Animator clearAnimator;
     public string[] enemyObjects;
     public Transform[] spawnPoints;
 
@@ -28,13 +31,7 @@ public class GameManager : MonoBehaviour
     {
         spawnList = new List<Spawn>();
         enemyObjects = new string[] { "EnemyS", "EnemyM", "EnemyL", "Boss" };
-        ReadSpawnFile();
-
-        if (player != null)
-        {
-            Player playerLogic = player.GetComponent<Player>();
-            playerLogic.objectManager = objectManager;
-        }
+        StageStart();
     }
 
     void ReadSpawnFile()
@@ -43,7 +40,7 @@ public class GameManager : MonoBehaviour
         spawnIndex = 0;
         spawnEnd = false;
 
-        TextAsset textFile = Resources.Load("Stage 0") as TextAsset;
+        TextAsset textFile = Resources.Load("Stage " + stage.ToString()) as TextAsset;
         StringReader reader = new StringReader(textFile.text);
 
         while (reader != null)
@@ -60,6 +57,18 @@ public class GameManager : MonoBehaviour
         }
         reader.Close();
         nextSpawnDelay = spawnList[0].delay;
+    }
+
+    public void StageStart()
+    {
+        stageAnimator.SetTrigger("On");
+        ReadSpawnFile();
+    }
+
+    public void StageEnd()
+    {
+        clearAnimator.SetTrigger("On");
+        stage++;
     }
 
     void Update()
@@ -106,6 +115,7 @@ public class GameManager : MonoBehaviour
         Rigidbody2D rigid = enemy.GetComponent<Rigidbody2D>();
         Enemy enemyLogic = enemy.GetComponent<Enemy>();
         enemyLogic.player = player;
+        enemyLogic.gameManager = this;
         enemyLogic.objectManager = objectManager;
         if (enemyPoint == 5 || enemyPoint == 6)
         {
@@ -157,6 +167,15 @@ public class GameManager : MonoBehaviour
         {
             lifeImages[i].color = new Color(1, 1, 1, 1);
         }
+    }
+
+    public void CallExplosion(Vector3 pos, string type)
+    {
+        GameObject explosion = objectManager.MakeObj("Explosion");
+        Explosion explosionLogic = explosion.GetComponent<Explosion>();
+
+        explosion.transform.position = pos;
+        explosionLogic.StartExplosion(type);
     }
 
     public void UpdateBoomIcon(int boom)
