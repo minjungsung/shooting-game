@@ -44,7 +44,7 @@ public class Enemy : MonoBehaviour
         switch (enemyName)
         {
             case "Boss":
-                health = 1000;
+                health = 100;
                 Invoke("Stop", 2);
                 break;
             case "S":
@@ -257,6 +257,11 @@ public class Enemy : MonoBehaviour
             gameObject.SetActive(false);
             transform.rotation = Quaternion.identity;
             gameManager.CallExplosion(transform.position, enemyName);
+
+            if (enemyName == "Boss")
+            {
+                gameManager.StageEnd();
+            }
         }
     }
 
@@ -282,6 +287,8 @@ public class Enemy : MonoBehaviour
             bullet.transform.position = transform.position;
             Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
 
+            Debug.Log("player.transform.position: " + player.transform.position);
+            Debug.Log("transform.position: " + transform.position);
             Vector3 dirVec = player.transform.position - transform.position;
             rb.AddForce(dirVec.normalized * 3, ForceMode2D.Impulse);
         }

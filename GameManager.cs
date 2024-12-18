@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviour
     public int stage;
     public Animator stageAnimator;
     public Animator clearAnimator;
+    public Animator fadeAnimator;
+    public Transform playerPos;
     public string[] enemyObjects;
     public Transform[] spawnPoints;
 
@@ -61,14 +63,38 @@ public class GameManager : MonoBehaviour
 
     public void StageStart()
     {
+        Debug.Log("StageStart");
         stageAnimator.SetTrigger("On");
+        stageAnimator.GetComponent<Text>().text = "Stage " + stage + "\nStart";
         ReadSpawnFile();
+        fadeAnimator.SetTrigger("In");
     }
 
     public void StageEnd()
     {
+        Debug.Log("StageEnd");
         clearAnimator.SetTrigger("On");
+        clearAnimator.GetComponent<Text>().text = "Stage " + stage + "\nClear";
+        fadeAnimator.SetTrigger("Out");
+        player.transform.position = playerPos.position;
         stage++;
+        StartCoroutine(HandleStageTransition());
+
+    }
+
+    private IEnumerator HandleStageTransition()
+    {
+        // Wait for the clear message to be visible
+        yield return new WaitForSeconds(6f);
+
+        if (stage > 2)
+        {
+            GameOver();
+        }
+        else
+        {
+            StageStart();
+        }
     }
 
     void Update()
